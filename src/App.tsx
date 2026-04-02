@@ -199,7 +199,8 @@ function ContactForm() {
       const adminChats = new Set<string>();
       if (updatesData.ok && updatesData.result) {
         updatesData.result.forEach((update: any) => {
-          if (update.message?.text === '/adminBaltMag') {
+          const text = update.message?.text || '';
+          if (text.includes('/adminBaltMag') || text.includes('/adminbaltmag')) {
             adminChats.add(update.message.chat.id);
           }
         });
@@ -483,7 +484,7 @@ function App() {
           </div>
           <div className="w-full h-[350px] md:h-[600px] rounded-3xl md:rounded-[2rem] overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.1)] border-4 md:border-8 border-white">
             <iframe
-              src="https://yandex.ru/map-widget/v1/?text=%D0%9A%D0%B0%D0%BB%D0%B8%D0%BD%D0%B8%D0%BD%D0%B3%D1%80%D0%B0%D0%B4,%20%D1%83%D0%BB%D0%B8%D1%86%D0%B0%20%D0%A4%D0%BB%D0%BE%D1%82%D1%81%D0%BA%D0%B0%D1%8F,%209"
+              src="https://yandex.ru/map-widget/v1/?mode=search&ol=biz&oid=2644527777&z=17.5"
               width="100%"
               height="100%"
               frameBorder="0"
