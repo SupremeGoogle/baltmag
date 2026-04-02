@@ -187,28 +187,36 @@ function ContactForm() {
     // Telegram Bot Token
     const BOT_TOKEN = "8006677315:AAF8nIWmSuQwH0qbvHIi0THplgbVGp91qZY";
 
-    // Вставьте сюда URL вашего Cloudflare Worker, когда создадите его
-    // Например: "https://my-telegram-proxy.gafar.workers.dev"
-    // Пока оставим стандартный. Как только создадите — замените эту строку!
-    const TELEGRAM_API = "https://solitary-leaf-533d.akbarchik0071.workers.dev/";
+    const TELEGRAM_API = "https://solitary-leaf-533d.akbarchik0071.workers.dev";
 
     try {
-      const updatesRes = await fetch(`${TELEGRAM_API}/bot${BOT_TOKEN}/getUpdates`);
-      const updatesData = await updatesRes.json();
-
+      // Базовый администратор - ваш ID. Он нужен обязательно, так как метод getUpdates 
+      // хранит историю только 24 часа, после чего динамические админы могут "отвалиться".
       const adminChats = new Set<string>();
-      if (updatesData.ok && updatesData.result) {
-        updatesData.result.forEach((update: any) => {
-          const text = update.message?.text || '';
-          if (text.includes('/adminBaltMag') || text.includes('/adminbaltmag')) {
-            adminChats.add(update.message.chat.id);
-          }
-        });
+      adminChats.add("837329049");
+
+      // Динамически забираем новых админов
+      try {
+        const updatesRes = await fetch(`${TELEGRAM_API}/bot${BOT_TOKEN}/getUpdates`);
+        const updatesData = await updatesRes.json();
+
+        if (updatesData.ok && updatesData.result) {
+          updatesData.result.forEach((update: any) => {
+            const text = update.message?.text || '';
+            if (text.includes('/adminBaltMag') || text.includes('/adminbaltmag')) {
+              if (update.message?.chat?.id) {
+                adminChats.add(update.message.chat.id.toString());
+              }
+            }
+          });
+        }
+      } catch (err) {
+        console.warn("Не удалось обновить динамических админов:", err);
       }
 
       if (adminChats.size === 0) {
         setStatus("error");
-        setMessage("Администраторы пока не подключили бота. Позвоните нам прямо по телефону!");
+        setMessage("Ошибка. Свяжитесь с нами по номеру +7 (906) 230-00-41");
         return;
       }
 
