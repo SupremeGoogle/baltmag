@@ -103,14 +103,14 @@ function LandingHero() {
 
       <div className="flex flex-col justify-center items-center w-[90%] sm:w-[80%] md:w-[700px] z-10 pointer-events-auto bg-white/70 backdrop-blur-md p-6 md:p-10 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-white/60 mt-16 md:mt-0">
         <motion.div
-           initial={{ scale: 0.8, opacity: 0 }}
-           animate={{ scale: 1, opacity: 1 }}
-           transition={{ duration: 0.5 }}
-           className="mb-6 md:mb-8"
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="mb-6 md:mb-8"
         >
           <img src="/logo.png" alt="БалтМаг Лого" className="w-32 h-32 md:w-48 md:h-48 object-contain drop-shadow-xl" />
         </motion.div>
-        
+
         <motion.h1
           className="text-2xl sm:text-4xl md:text-6xl text-center w-full justify-center items-center flex-col flex whitespace-pre leading-tight font-extrabold tracking-tight space-y-2 text-slate-800"
           animate={{ opacity: 1, y: 0 }}
@@ -138,7 +138,7 @@ function LandingHero() {
             </motion.span>
           </LayoutGroup>
         </motion.h1>
-        
+
         <motion.p
           className="text-xs sm:text-lg md:text-xl text-center text-slate-600 pt-4 md:pt-6 font-medium"
           animate={{ opacity: 1, y: 0 }}
@@ -178,19 +178,24 @@ function ContactForm() {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setStatus("loading");
-    
+
     const formData = new FormData(e.currentTarget);
     const name = formData.get("name") as string;
     const phone = formData.get("phone") as string;
     const userMsg = formData.get("message") as string;
-    
+
     // Telegram Bot Token
     const BOT_TOKEN = "8006677315:AAF8nIWmSuQwH0qbvHIi0THplgbVGp91qZY";
 
+    // Вставьте сюда URL вашего Cloudflare Worker, когда создадите его
+    // Например: "https://my-telegram-proxy.gafar.workers.dev"
+    // Пока оставим стандартный. Как только создадите — замените эту строку!
+    const TELEGRAM_API = "https://solitary-leaf-533d.akbarchik0071.workers.dev/";
+
     try {
-      const updatesRes = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates`);
+      const updatesRes = await fetch(`${TELEGRAM_API}/bot${BOT_TOKEN}/getUpdates`);
       const updatesData = await updatesRes.json();
-      
+
       const adminChats = new Set<string>();
       if (updatesData.ok && updatesData.result) {
         updatesData.result.forEach((update: any) => {
@@ -208,8 +213,8 @@ function ContactForm() {
 
       const formattedMessage = `🛒 *БалтМаг*\n\n👤 Имя: ${name}\n📞 Телефон: ${phone}\n\n📝 Сообщение:\n${userMsg}`;
 
-      const promises = Array.from(adminChats).map(chatId => 
-        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      const promises = Array.from(adminChats).map(chatId =>
+        fetch(`${TELEGRAM_API}/bot${BOT_TOKEN}/sendMessage`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ chat_id: chatId, text: formattedMessage, parse_mode: 'Markdown' })
@@ -231,9 +236,9 @@ function ContactForm() {
   return (
     <form onSubmit={handleSubmit} className="bg-white p-5 md:p-8 rounded-2xl md:rounded-3xl shadow-xl border border-slate-100 max-w-lg w-full mx-auto relative overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-brandGreen to-brandOrange"></div>
-      
+
       <h3 className="text-lg md:text-2xl font-bold mb-4 md:mb-6 text-slate-800 text-center">Связаться с нами</h3>
-      
+
       <div className="space-y-3 md:space-y-4">
         <div>
           <label className="block text-xs md:text-sm font-medium text-slate-700 mb-1">Ваше имя</label>
@@ -247,10 +252,10 @@ function ContactForm() {
           <label className="block text-xs md:text-sm font-medium text-slate-700 mb-1">Сообщение</label>
           <textarea required name="message" rows={3} className="text-slate-900 text-sm md:text-base w-full px-4 py-2.5 md:py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brandGreen focus:outline-none transition" placeholder="Интересует наличие..."></textarea>
         </div>
-        
-        <button 
+
+        <button
           disabled={status === 'loading'}
-          type="submit" 
+          type="submit"
           className="w-full bg-brandGreen hover:bg-[#3f671c] text-white text-sm md:text-base font-semibold py-3 md:py-4 rounded-xl flex justify-center items-center gap-2 transition disabled:opacity-50 mt-2 md:mt-4 shadow-[0_8px_20px_rgba(75,123,34,0.3)]"
         >
           {status === 'loading' ? 'Отправка...' : <><Send size={18} /> Отправить</>}
@@ -268,15 +273,15 @@ function App() {
 
   React.useEffect(() => {
     const lenis = new Lenis()
-   
+
     function raf(time: number) {
-        lenis.raf(time)
-        requestAnimationFrame(raf)
+      lenis.raf(time)
+      requestAnimationFrame(raf)
     }
 
     requestAnimationFrame(raf)
     return () => {
-        lenis.destroy()
+      lenis.destroy()
     }
   }, [])
 
@@ -292,11 +297,11 @@ function App() {
 
   return (
     <div className="bg-slate-50 min-h-screen font-calendas text-slate-900 overflow-clip selection:bg-brandGreen selection:text-white">
-      
+
       {/* Navigation */}
       <nav className="fixed top-0 w-full bg-white/95 backdrop-blur-md border-b border-slate-100 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-3 md:gap-4 font-bold text-xl md:text-2xl text-slate-800 tracking-tight cursor-pointer" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
+          <div className="flex items-center gap-3 md:gap-4 font-bold text-xl md:text-2xl text-slate-800 tracking-tight cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
             <img src="/logo.png" alt="Logo" className="h-[40px] md:h-[48px] object-contain drop-shadow-sm transition-transform hover:scale-105" />
             <span>БалтМаг</span>
           </div>
@@ -323,7 +328,7 @@ function App() {
         {/* Mobile Dropdown Menu */}
         <AnimatePresence>
           {isMobileMenuOpen && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
@@ -350,18 +355,18 @@ function App() {
       {/* Introduction Custom Text Section */}
       <section id="intro" className="min-h-[80vh] md:min-h-screen w-full flex items-center justify-center bg-white relative overflow-hidden py-16 md:py-24">
         {/* Video Background */}
-        <video 
-          autoPlay 
-          loop 
-          muted 
-          playsInline 
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
           className="absolute top-0 left-0 w-full h-full object-cover z-0"
         >
           <source src="/video.mp4" type="video/mp4" />
         </video>
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-8 relative z-10 p-6 md:p-10 bg-white/40 rounded-[2rem] backdrop-blur-md shadow-2xl border border-white/60 mx-4 md:mx-auto">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -370,8 +375,8 @@ function App() {
               Ваш уют начинается здесь
             </h2>
             <p className="text-base md:text-2xl text-slate-800 leading-relaxed font-semibold">
-              Каждый день мы стараемся делать вашу жизнь удобнее и ярче. В нашем ассортименте вы найдете не только качественные товары первой необходимости, бытовую химию и свежайшие продукты, но и уникальные европейские сладости, которые так сложно отыскать. 
-              <br/><br/>
+              Каждый день мы стараемся делать вашу жизнь удобнее и ярче. В нашем ассортименте вы найдете не только качественные товары первой необходимости, бытовую химию и свежайшие продукты, но и уникальные европейские сладости, которые так сложно отыскать.
+              <br /><br />
               Мы искренне ценим каждого клиента, создаем чистоту и дружелюбную атмосферу, чтобы каждый визит к нам приносил лишь положительные эмоции!
             </p>
           </motion.div>
@@ -390,7 +395,7 @@ function App() {
             <h2 className="text-2xl md:text-4xl font-bold mb-3 md:mb-4 text-slate-800">Мы работаем для вас!</h2>
             <p className="text-brandOrange font-medium text-base md:text-lg">Ждем вас каждый день без выходных</p>
           </div>
-          
+
           <div className="grid md:grid-cols-2 gap-6 md:gap-8">
             <div className="bg-white p-6 md:p-10 rounded-3xl shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-slate-100 hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-shadow">
               <h3 className="text-lg md:text-2xl font-bold flex items-center gap-3 mb-6 md:mb-8 text-slate-800"><ShoppingBag className="text-brandOrange w-6 h-6 md:w-7 md:h-7" /> Время работы</h3>
@@ -403,10 +408,10 @@ function App() {
                 ))}
               </ul>
             </div>
-            
+
             <div className="bg-white p-6 md:p-10 rounded-3xl shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-slate-100 flex flex-col hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-shadow">
               <h3 className="text-lg md:text-2xl font-bold flex items-center gap-3 mb-6 md:mb-8 text-slate-800"><MapPin className="text-brandGreen w-6 h-6 md:w-7 md:h-7" /> Наши контакты</h3>
-              
+
               <div className="space-y-4 md:space-y-8 flex-1">
                 <div className="bg-slate-50 p-4 md:p-6 rounded-2xl border border-slate-100">
                   <p className="text-xs md:text-sm text-slate-500 font-semibold mb-1 uppercase tracking-wider">Адрес</p>
@@ -420,7 +425,7 @@ function App() {
 
               <div className="mt-6 md:mt-8 flex flex-col sm:flex-row gap-3 md:gap-4">
                 <a href="https://t.me/baltmag" target="_blank" className="flex-1 bg-[#0088cc] hover:bg-[#0077b3] text-white py-3 md:py-4 px-4 md:px-6 rounded-2xl font-bold text-sm md:text-base flex items-center justify-center gap-2 transition shadow-md">
-                  <Send size={18} /> Telegram 
+                  <Send size={18} /> Telegram
                 </a>
                 <a href="https://max.ru/join/fTvQSFhpqnT-osv-I9XQfr5IJ82wOvZgg_xxH-hDngo" target="_blank" className="flex-1 bg-slate-800 hover:bg-slate-900 text-white py-3 md:py-4 px-4 md:px-6 rounded-2xl font-bold text-sm md:text-base flex items-center justify-center transition shadow-md">
                   Max Приложение
@@ -442,11 +447,11 @@ function App() {
             ★★★★★
           </div>
         </div>
-        
+
         <div className="relative w-full flex overflow-hidden">
           <div className="absolute left-0 top-0 bottom-0 w-8 md:w-32 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
           <div className="absolute right-0 top-0 bottom-0 w-8 md:w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
-          
+
           <div className="flex w-max animate-marquee pb-8 md:pb-12 gap-4 md:gap-6 items-stretch px-0">
             {infiniteReviews.map((review, i) => (
               <div key={i} className="w-[280px] md:w-[400px] bg-slate-50 p-6 md:p-8 rounded-3xl border border-slate-100 flex flex-col justify-between shadow-[0_4px_20px_rgb(0,0,0,0.03)] mx-2 md:mx-3">
@@ -456,7 +461,7 @@ function App() {
                 </div>
                 <div className="mt-6 md:mt-8 flex items-center gap-3 md:gap-4 bg-white p-3 md:p-4 rounded-2xl shadow-sm border border-slate-50">
                   <div className="w-10 h-10 md:w-14 md:h-14 bg-green-50 text-brandGreen rounded-full flex items-center justify-center font-bold text-base md:text-xl border border-green-100 shrink-0">
-                    {review.n.substring(0,2).toUpperCase()}
+                    {review.n.substring(0, 2).toUpperCase()}
                   </div>
                   <div>
                     <h4 className="font-bold text-slate-900 text-sm md:text-base leading-tight">{review.n}</h4>
@@ -477,11 +482,11 @@ function App() {
             <p className="text-slate-600 text-base md:text-lg font-medium">Калининград, улица Флотская, 9</p>
           </div>
           <div className="w-full h-[350px] md:h-[600px] rounded-3xl md:rounded-[2rem] overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.1)] border-4 md:border-8 border-white">
-            <iframe 
-              src="https://yandex.ru/map-widget/v1/?text=%D0%9A%D0%B0%D0%BB%D0%B8%D0%BD%D0%B8%D0%BD%D0%B3%D1%80%D0%B0%D0%B4,%20%D1%83%D0%BB%D0%B8%D1%86%D0%B0%20%D0%A4%D0%BB%D0%BE%D1%82%D1%81%D0%BA%D0%B0%D1%8F,%209" 
-              width="100%" 
-              height="100%" 
-              frameBorder="0" 
+            <iframe
+              src="https://yandex.ru/map-widget/v1/?text=%D0%9A%D0%B0%D0%BB%D0%B8%D0%BD%D0%B8%D0%BD%D0%B3%D1%80%D0%B0%D0%B4,%20%D1%83%D0%BB%D0%B8%D1%86%D0%B0%20%D0%A4%D0%BB%D0%BE%D1%82%D1%81%D0%BA%D0%B0%D1%8F,%209"
+              width="100%"
+              height="100%"
+              frameBorder="0"
               allowFullScreen={true}
             ></iframe>
           </div>
@@ -492,7 +497,7 @@ function App() {
       <section id="contacts" className="py-12 md:py-24 bg-gradient-to-br from-brandGreen to-[#335515] text-white relative border-t-8 border-brandOrange">
         <div className="max-w-6xl mx-auto px-4 md:px-6 grid md:grid-cols-2 gap-8 md:gap-20 items-center">
           <div className="text-center md:text-left">
-            <h2 className="text-2xl md:text-6xl font-extrabold mb-3 md:mb-6 leading-tight drop-shadow-sm">Остались вопросы? <br/><span className="text-brandOrange drop-shadow-md">Мы на связи!</span></h2>
+            <h2 className="text-2xl md:text-6xl font-extrabold mb-3 md:mb-6 leading-tight drop-shadow-sm">Остались вопросы? <br /><span className="text-brandOrange drop-shadow-md">Мы на связи!</span></h2>
             <p className="text-sm md:text-xl text-green-50 mb-5 md:mb-8 opacity-90 leading-relaxed font-medium">
               Напишите нам, если ищете конкретный товар или хотите оставить пожелание. Руководители магазина получат ваше сообщение напрямую в Telegram!
             </p>
@@ -503,7 +508,7 @@ function App() {
               </div>
             </div>
           </div>
-          
+
           <ContactForm />
         </div>
       </section>
@@ -511,14 +516,14 @@ function App() {
       {/* Footer */}
       <footer className="bg-slate-900 text-slate-400 py-12 md:py-16 text-center border-t-4 border-brandGreen px-4">
         <div className="flex justify-center mb-6 md:mb-8">
-          <img src="/logo.png" alt="Logo" className="h-16 md:h-20 opacity-80 transition hover:opacity-100 hover:scale-105 duration-300 drop-shadow-[0_0_15px_rgba(75,123,34,0.5)] cursor-pointer" onClick={() => window.scrollTo(0,0)} />
+          <img src="/logo.png" alt="Logo" className="h-16 md:h-20 opacity-80 transition hover:opacity-100 hover:scale-105 duration-300 drop-shadow-[0_0_15px_rgba(75,123,34,0.5)] cursor-pointer" onClick={() => window.scrollTo(0, 0)} />
         </div>
         <p className="font-extrabold text-white text-xl md:text-2xl mb-2 tracking-wide uppercase">БалтМаг</p>
         <p className="mb-6 md:mb-8 font-medium text-base md:text-lg">Супермаркет хозтоваров и бытовой химии</p>
-        
+
         <div className="w-16 md:w-24 h-1 bg-brandOrange mx-auto mb-6 md:mb-8 rounded-full opacity-50"></div>
 
-        <p className="text-xs md:text-sm opacity-60 font-medium tracking-wide">&copy; 2026 БалтМаг. Все права защищены. <br/> г. Калининград, ул. Флотская, 9</p>
+        <p className="text-xs md:text-sm opacity-60 font-medium tracking-wide">&copy; 2026 БалтМаг. Все права защищены. <br /> г. Калининград, ул. Флотская, 9</p>
       </footer>
 
       {/* Tailwind utility overrides for strict marquee without layout breaks */}
